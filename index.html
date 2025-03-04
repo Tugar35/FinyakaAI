@@ -18,9 +18,20 @@
     <p id="aiResponse"></p>
 
     <script>
-        // Sayfa yüklendiğinde hafızayı al
-        const memory = JSON.parse(localStorage.getItem('memory')) || {};
+        // Sayfada yüklenen veriyi almak için URL parametrelerini kontrol et
+        function getParamsFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams;
+        }
 
+        // URL parametrelerinden kelime anlamını çekmek
+        function getMeaningFromURL(userInput) {
+            const params = getParamsFromURL();
+            const meaning = params.get(userInput);
+            return meaning;
+        }
+
+        // Kullanıcının girdiği kelimeye göre AI yanıtı
         function getAIResponse() {
             const userInput = document.getElementById('userInput').value.trim().toLowerCase();
 
@@ -30,22 +41,22 @@
                 return;
             }
 
-            // Kullanıcı daha önce öğretilmiş bir kelime girerse, anlamını söyleriz
-            if (memory[userInput]) {
-                document.getElementById('aiResponse').innerText = `${memory[userInput]}`;
+            // URL parametrelerinden anlamı al
+            const meaning = getMeaningFromURL(userInput);
+
+            if (meaning) {
+                document.getElementById('aiResponse').innerText = meaning;
             } else {
-                // Eğer anlamını bilmiyorsa, kullanıcıdan öğretmesini isteriz
                 document.getElementById('aiResponse').innerText = `Bunun anlamını bilmiyorum. Bana öğretir misiniz?`;
 
-                // Kullanıcı anlamı öğrettikten sonra hafızaya ekleriz
                 setTimeout(() => {
                     const userMeaning = prompt(`Lütfen "${userInput}" kelimesinin anlamını girin:`);
                     if (userMeaning) {
-                        memory[userInput] = userMeaning;
+                        // Anlamı URL parametresi olarak ekleyin
+                        const currentURL = window.location.href;
+                        const newURL = `${currentURL}?${userInput}=${encodeURIComponent(userMeaning)}`;
+                        window.location.href = newURL;  // Sayfayı yeni URL ile yeniden yükleyin
                         alert(`Teşekkür ederim! "${userInput}" kelimesinin anlamı kaydedildi.`);
-
-                        // Hafızayı LocalStorage'a kaydet
-                        localStorage.setItem('memory', JSON.stringify(memory));
                     } else {
                         alert("Anlam girilmedi.");
                     }
