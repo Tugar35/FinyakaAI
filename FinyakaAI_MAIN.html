@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinyakaAI</title>
+</head>
+<body bgcolor="#4598e6">
+    <img src="cover.png" width="500px" alt="FinyakaAI">
+    <h1>Asistan ile Sohbet</h1>
+    Asistana bir şey söyleyin. Siz ona anlamını bilmediği kelimeler söylerseniz size buna nasıl cevap vereceğini sorar. Örneğin: SİZ:Merhaba  FinyakaAI:Anlam girin... SİZ:Sana da merhaba!
+    
+    <h2><label for="userInput">Bir şey yazın:</label></h2>
+    <input type="text" id="userInput" placeholder="Yazın...">
+    <button onclick="getAIResponse()">Gönder</button>
+    
+    <h1>FinyakaAI:</h1>
+    <p id="aiResponse"></p>
+
+    <script>
+        // Sayfa yüklendiğinde hafızayı al
+        const memory = JSON.parse(localStorage.getItem('memory')) || {};
+
+        function getAIResponse() {
+            const userInput = document.getElementById('userInput').value.trim().toLowerCase();
+
+            // Eğer kullanıcı boş bir girdi yaparsa
+            if (userInput === '') {
+                document.getElementById('aiResponse').innerText = 'Lütfen bir metin girin.';
+                return;
+            }
+
+            // Kullanıcı daha önce öğretilmiş bir kelime girerse, anlamını söyleriz
+            if (memory[userInput]) {
+                document.getElementById('aiResponse').innerText = `${memory[userInput]}`;
+            } else {
+                // Eğer anlamını bilmiyorsa, kullanıcıdan öğretmesini isteriz
+                document.getElementById('aiResponse').innerText = `Bunun anlamını bilmiyorum. Bana öğretir misiniz?`;
+
+                // Kullanıcı anlamı öğrettikten sonra hafızaya ekleriz
+                setTimeout(() => {
+                    const userMeaning = prompt(`Lütfen "${userInput}" kelimesinin anlamını girin:`);
+                    if (userMeaning) {
+                        memory[userInput] = userMeaning;
+                        alert(`Teşekkür ederim! "${userInput}" kelimesinin anlamı kaydedildi.`);
+
+                        // Hafızayı LocalStorage'a kaydet
+                        localStorage.setItem('memory', JSON.stringify(memory));
+                    } else {
+                        alert("Anlam girilmedi.");
+                    }
+                }, 1000); // 1 saniye sonra anlamı sormaya başlar
+            }
+        }
+    </script>
+</body>
+</html>
